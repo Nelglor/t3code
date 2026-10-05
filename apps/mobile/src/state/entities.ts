@@ -50,6 +50,9 @@ const threadTitlesAtom = Atom.family((environmentId: EnvironmentId) => {
     return previous;
   }).pipe(Atom.withLabel(`mobile-thread-titles:${environmentId}`));
 });
+const EMPTY_THREAD_ATOM = Atom.make<EnvironmentThread | null>(null).pipe(
+  Atom.withLabel("mobile-thread:empty"),
+);
 
 /** Resolves when the project event reaches the live client store. */
 export function waitForProject(
@@ -133,6 +136,9 @@ export function useServerConfigs(): ReadonlyMap<EnvironmentId, ServerConfig> {
 const selectReportedModelSelection = (thread: EnvironmentThread | null) =>
   thread === null ? null : deriveReportedModelSelection(thread.projection);
 
-export function useThreadReportedModelSelection(ref: ScopedThreadRef) {
-  return useAtomValue(environmentThreadDetails.threadAtom(ref), selectReportedModelSelection);
+export function useThreadReportedModelSelection(ref: ScopedThreadRef | null) {
+  return useAtomValue(
+    ref === null ? EMPTY_THREAD_ATOM : environmentThreadDetails.threadAtom(ref),
+    selectReportedModelSelection,
+  );
 }
